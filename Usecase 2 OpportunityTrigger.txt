@@ -1,0 +1,35 @@
+//Trigger
+trigger opportunitytrigger on Opportunity (After Update){
+   if(trigger.isAfter && trigger.isupdate){
+        opportunitytriggerHandler.updateAccount(trigger.new);
+    }
+
+}
+//Handler
+public class opportunitytriggerHandler {
+   public static void updateAccount(List<Opportunity> oppList){
+        List<Account> accList = new List<Account>();
+        set<id> oppids = new Set<id>();
+        if(!oppList.isEmpty()){
+            for(Opportunity opp : oppList){
+                if(opp.AccountId != null || opp.AccountId != ''){
+                    oppids.add(opp.Id);
+                }
+            }
+        }
+        List<Opportunity> opprcdsList = [SELECT id,CloseDate,StageName,Account.ActiveStatus__c FROM Opportunity 	WHERE Id IN :oppids];
+        for(Opportunity opp : oppList){
+            integer day = opp.CloseDate.day();
+            integer oddcheck = Math.mod(day,2);
+            if(opp.StageName == 'Negotiation/Review' && oddcheck != 0){
+                Account acc = new Account();
+                acc.Id = opp.AccountId;
+                acc.ActiveStatus__c =  'Active';
+                accList.add(acc);
+            }
+        }
+        Update accList;
+    }
+
+
+}

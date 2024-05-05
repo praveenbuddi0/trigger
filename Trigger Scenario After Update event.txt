@@ -1,0 +1,25 @@
+trigger ContactPhoneFieldUpdate on Account (after Update) {
+    // Account Phone Field is Update then Realted contact(ACCOUNTID) based contact phone field update.
+    Map<Id,Account> AccMap = new Map<Id,Account>();
+    // old Account and it's ID so Map Function
+    if(trigger.isAfter && trigger.isUpdate){
+        if(!trigger.new.isEmpty()){
+            for(Account Acc : Trigger.new) {
+                if(trigger.oldMap.get(Acc.Id).Phone != Acc.Phone){
+                  AccMap.put(Acc.Id,Acc); 
+                }
+            }
+        }
+    }
+    List<Contact> ConList = [SELECT Id,AccountId,Phone FROM Contact WHERE AccountId IN : AccMap.keySet() ];
+    List<Contact> ListToUpdateContacts = new List<Contact>();
+    if(!ConList.isEmpty()){
+        for(Contact Con : ConList){
+            Con.Phone = AccMap.get(Con.AccountId).Phone ;
+            ListToUpdateContacts.add(Con);
+        }
+    }
+    if(!ListToUpdateContacts.isEmpty()){
+        update ListToUpdateContacts;
+    }
+}

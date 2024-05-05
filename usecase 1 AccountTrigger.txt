@@ -1,0 +1,30 @@
+//Trigger
+trigger Accounttrigger on Account (before Update) {
+  if(trigger.isbefore &&trigger.isUpdate){
+      AccounttriggerHandler.updateAccount_based_on_Time(trigger.new );
+         
+    }
+
+}
+//Handler
+public class AccounttriggerHandler {
+   public static void updateAccount_based_on_Time(List<Account> accList){
+        List<Account> accountstoupdateList = new List<Account>();
+        if(!accList.isEmpty()){
+            for(Account acc : accList){
+                datetime currenttime = system.now();
+                long differenceInMinutes = (currenttime.getTime() - acc.LastModifiedDate.getTime()) /(1000 * 60);
+                if(differenceInMinutes > 60){
+                     accountstoupdateList.add(acc);
+                }else{
+                   
+                    acc.addError('Account can only be updated every 60Min Account was Updated 					    '+differenceInMinutes+'Min ago');
+                }
+              
+            }
+      
+        }
+        
+    }
+
+}

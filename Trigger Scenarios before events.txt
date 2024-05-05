@@ -1,0 +1,41 @@
+trigger AccountTrigger on Account (before insert , before update) {
+    if(Trigger.isbefore && (Trigger.isInsert || Trigger.isUpdate)){
+    websiteHandler.validweb(trigger.New);
+     }
+}
+
+==================
+------------=====
+HandlerClass
+------------------
+public class websiteHandler {
+    public static void validweb(LIst<Account> AccList){
+        For(Account Acc : AccList){
+            if(Acc.Website == null){
+                Acc.Website.AddError('The WEB site is mandatory');
+            }
+        }
+    }
+
+}
+===========================================================
+----------------------------------------------------------
+============================================================
+trigger AccountTrigger on Account (before insert , before update) {
+    if(Trigger.isbefore && (Trigger.isInsert || Trigger.isUpdate)){
+   // websiteHandler.validweb(trigger.New);
+        ShippingHandler.shippingMethod(Trigger.New);
+     }
+}
+========================---------------===============================
+public class ShippingHandler {
+    public static void shippingMethod(List<Account> AccList){
+        For(Account Acc : AccList){
+            If(Acc.ShippingState != NULL || Acc.ShippingCity != NULL){
+                Acc.ShippingState = Acc.BillingState;
+                Acc.ShippingCity = Acc.BillingCity;
+            }
+        }
+    }
+
+}
